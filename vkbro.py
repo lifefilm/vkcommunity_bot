@@ -99,7 +99,7 @@ while True:
 
             read = i['body'].encode('utf8')
             if read in ustxt:
-                messagesSend(i['user_id'],i['id'],textbro)
+                messagesSend(i['user_id'],i['id'],textbro,'photo,photo-128566598_432688170')
                 time.sleep(1)
                 print read, ' - Шлем бро!'
             else:
@@ -124,4 +124,4 @@ while True:
     #         print 'No count'
 
 
-    time.sleep(2)
+    time.sleep(1)
