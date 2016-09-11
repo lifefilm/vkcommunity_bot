@@ -126,6 +126,10 @@ while True:
     userList={}
     user={}
 
+    if not dialogs:
+        print 'No dialogs'
+        break
+
     for items in dialogs:
         user_id = items['message']['user_id']
         user['msg_id'] = items['message']['user_id']
@@ -151,6 +155,8 @@ while True:
     for i in dial:
 
         status=0
+        # command['shutka']['answer']=anekdot[int(round(random.random()*98))]
+
 
         if int(i['read_state']) == 0:
 
@@ -179,7 +185,7 @@ while True:
 
             if status==0:
                     print read, ' - Не БРО'
-                    messagesSend(i['user_id'],i['id'],'Прости, не понял тебя. (команды: помощь/шутка/расписание)')
+                    messagesSend(i['user_id'],i['id'],'Прости, не понял тебя. (команды: '+ckeys+')')
 
 
     time.sleep(1)
