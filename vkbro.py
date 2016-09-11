@@ -154,7 +154,8 @@ while True:
 
         if int(i['read_state']) == 0:
 
-            read = i['body'].encode('utf8').lower()
+            read = i['body'].encode('utf8')
+            read = read.decode('utf8').lower()
 
             # перебераем в цикле наш словарь команд
             for cmd,otvet in command.iteritems():
