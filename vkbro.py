@@ -6,17 +6,23 @@ import json
 import time
 import random
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 
 vk_url="https://api.vkontakte.ru/method/"
+vk_ver='5.53'
 access_token='84bf24ce01548f2a85bcd4d2577d5b5cc6007b894b79d4f471f4f57346bd52aa08e0733ce81d69e2eafe2'
 peer_id='-1747308378'
+
 
 ###################### ************************
 
 def messagesGetDialogs():
 
     resp = requests.get(vk_url+'messages.getDialogs',
-                    '&access_token={}&v=5.53'.format(access_token))
+                    '&access_token={}&v={}'.format(access_token,vk_ver))
 
     result = resp.json()
     # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
@@ -26,10 +32,10 @@ def messagesGetDialogs():
 
 def messagesGet(count=30):
     resp = requests.get(vk_url+'messages.get',
-                    '&count={}&access_token={}&v=5.53'.format(count,access_token))
+                    '&count={}&access_token={}&v={}'.format(count,access_token,vk_ver))
 
     result = resp.json()
-    print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
+    # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
 
     return result['response']['items']
 
@@ -37,8 +43,8 @@ def messagesGet(count=30):
 
 def messagesGetHistory(user_id,start_message_id='',count=30):
     resp = requests.get(vk_url+'messages.getHistory',
-                    '&user_id={}&start_message_id={}&peer_id={}&count={}&access_token={}&v=5.53'
-                    .format(user_id, start_message_id, peer_id, count,access_token))
+                    '&user_id={}&start_message_id={}&peer_id={}&count={}&access_token={}&v={}'
+                    .format(user_id, start_message_id, peer_id, count,access_token,vk_ver))
 
     result = resp.json()
     print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
@@ -48,13 +54,13 @@ def messagesGetHistory(user_id,start_message_id='',count=30):
 
 def messagesSend(user_id,chat_id=1,message='',attachment='',stiker='20'):
     resp = requests.get(vk_url+'messages.send',
-            '&user_id={}&peer_id={}&chat_id={}&message={}&attachment={}&access_token={}&v=5.53'
-            .format(user_id,peer_id, chat_id,message,attachment,access_token))
+            '&user_id={}&peer_id={}&chat_id={}&message={}&attachment={}&access_token={}&v={}'
+            .format(user_id,peer_id, chat_id,message,attachment,access_token,vk_ver))
 
-    result = resp.json()
-    print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
+    # result = resp.json()
+    # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
 
-    return result
+    return resp
 
 def loadAnekdot(count=100):
 
@@ -76,6 +82,41 @@ def loadAnekdot(count=100):
 ###################### ************************
 
 anekdot=loadAnekdot()
+
+print 'Started...'
+
+
+# Словарь для команд
+
+command = {
+    'bro':{
+        'txt':['бро','bro', 'привет','как дела']
+        ,'answer':'bro!'
+        ,'image':'photo,photo-128566598_432688170'
+    },
+    'lesson':{
+        'txt':['расписание','что сегодня', 'на неделю', 'lesson']
+        ,'answer':'Расписание: - нет расписания'
+    },
+    'shutka':{
+        'txt':['шутка','анекдот','цитата','ещё','еще']
+        ,'answer':anekdot[int(round(random.random()*98))]
+    },
+    'help':{
+        'txt':['помощь','help']
+        ,'answer':'Команды: '
+    },
+}
+
+#список всех комананд, для помощи
+ckeysList=[]
+for key,row in command.iteritems():
+    ckeysList.append(row['txt'][0])
+
+ckeys=', '.join(ckeysList)
+command['help']['answer']='Команды: '+ckeys
+print command['help']['answer']
+
 
 while True:
 
@@ -103,63 +144,41 @@ while True:
     #         j['status'] = 0
 
 
-    # Словарь для команд
-    txt={}
-    txt['bro'] = ['бро','bro','Бро','Bro','BRO', 'БРО']
-    txt['lesson'] = ['lesson','расписание','что сегодня', 'на неделю']
-    txt['shutka'] = ['шутка','анекдот','цитата','ещё','еще']
 
 
     dial = messagesGet()
 
     for i in dial:
 
-        print '------------------ user_id:', i['user_id']
+        status=0
 
         if int(i['read_state']) == 0:
 
-            read = i['body'].encode('utf8')
-            if read in txt['bro']:
-                textbro = 'bro!'
-                messagesSend(i['user_id'],i['id'],textbro,'photo,photo-128566598_432688170')
-                time.sleep(1)
-                print read, ' - Шлем бро!'
+            read = i['body'].encode('utf8').lower()
 
-            elif read in txt['lesson']:
-                textbro = 'Расписание: - нет расписания'
-                messagesSend(i['user_id'],i['id'],textbro)
-                time.sleep(1)
-                print read, ' - Шлем расписание!'
+            # перебераем в цикле наш словарь команд
+            for cmd,otvet in command.iteritems():
+                bro_image=''
 
-            elif read in txt['shutka']:
-                rnd= int(round(random.random()*100))
-                textbro = anekdot[rnd]
-                print textbro
-                messagesSend(i['user_id'],i['id'],textbro)
-                time.sleep(1)
-                print read, ' - Шлем shutka!'
+                # если нашли совпадение команды
+                if read in otvet['txt']:
 
-            else:
-                print read, ' - Не БРО'
-                messagesSend(i['user_id'],i['id'],'Прости не понял тебя')
+                    if 'image' in otvet:
+                        bro_image = otvet['image']
 
+                    messagesSend(i['user_id'],i['id'],otvet['answer'],bro_image)
 
+                    print '------------------------------'
+                    print (str(i['user_id'])+': "'+read + '" --> ' + cmd)
 
-    # for user_id,j in userList.iteritems():
-    #
-    #     print '------------------ user_id:', user_id
-    #     msg=messagesGetHistory(user_id, j['msg_id'])
-    #
-    #     if msg['count']>0:
-    #
-    #         read = msg['items']['body'].encode('utf8')
-    #         if read == 'бро':
-    #             messagesSend(msg['user_id'],chat_id['id'],textbro)
-    #             print read, ' - Шлем бро!'
-    #         else:
-    #             print read, ' - Не БРО'
-    #     else:
-    #         print 'No count'
+                    status=1 # нашли команду и выходим
+                    time.sleep(0.5)
+
+                    break
+
+            if status==0:
+                    print read, ' - Не БРО'
+                    messagesSend(i['user_id'],i['id'],'Прости, не понял тебя. (команды: помощь/шутка/расписание)')
 
 
     time.sleep(1)
