@@ -4,6 +4,7 @@
 import requests
 import json
 import time
+import random
 
 
 vk_url="https://api.vkontakte.ru/method/"
@@ -19,8 +20,8 @@ def messagesGetDialogs():
 
     result = resp.json()
     # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
-
-    return result['response']['items']
+    if 'response' in result:
+        return result['response']['items']
 
 
 def messagesGet(count=30):
@@ -55,9 +56,26 @@ def messagesSend(user_id,chat_id=1,message='',attachment='',stiker='20'):
 
     return result
 
+def loadAnekdot(count=100):
+
+    import html2text
+
+    resp = requests.get('http://www.umori.li/api/get?site=bash.im&name=bash&num={}'.format(count))
+
+    result = resp.json()
+
+    anekdot=[]
+
+    for row in result:
+        html=row['elementPureHtml']
+        txt= html2text.html2text(html).strip().encode('utf-8')
+        anekdot.append(txt)
+    # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
+    return anekdot
 
 ###################### ************************
 
+anekdot=loadAnekdot()
 
 while True:
 
@@ -85,9 +103,12 @@ while True:
     #         j['status'] = 0
 
 
-    # Ответ на Бро Бро
-    ustxt = ['бро','bro','Бро','Bro','BRO', 'БРО']
-    textbro = 'bro!'
+    # Словарь для команд
+    txt={}
+    txt['bro'] = ['бро','bro','Бро','Bro','BRO', 'БРО']
+    txt['lesson'] = ['lesson','расписание','что сегодня', 'на неделю']
+    txt['shutka'] = ['шутка','анекдот','цитата','ещё','еще']
+
 
     dial = messagesGet()
 
@@ -98,12 +119,29 @@ while True:
         if int(i['read_state']) == 0:
 
             read = i['body'].encode('utf8')
-            if read in ustxt:
+            if read in txt['bro']:
+                textbro = 'bro!'
                 messagesSend(i['user_id'],i['id'],textbro,'photo,photo-128566598_432688170')
                 time.sleep(1)
                 print read, ' - Шлем бро!'
+
+            elif read in txt['lesson']:
+                textbro = 'Расписание: - нет расписания'
+                messagesSend(i['user_id'],i['id'],textbro)
+                time.sleep(1)
+                print read, ' - Шлем расписание!'
+
+            elif read in txt['shutka']:
+                rnd= int(round(random.random()*100))
+                textbro = anekdot[rnd]
+                print textbro
+                messagesSend(i['user_id'],i['id'],textbro)
+                time.sleep(1)
+                print read, ' - Шлем shutka!'
+
             else:
                 print read, ' - Не БРО'
+                messagesSend(i['user_id'],i['id'],'Прости не понял тебя')
 
 
 
