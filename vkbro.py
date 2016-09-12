@@ -10,57 +10,17 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+#######################################################
 
-vk_url="https://api.vkontakte.ru/method/"
-vk_ver='5.53'
-access_token='84bf24ce01548f2a85bcd4d2577d5b5cc6007b894b79d4f471f4f57346bd52aa08e0733ce81d69e2eafe2'
-peer_id='-1747308378'
+from vkGroupApi import *
+import config
 
+access_token = config.bro_token
+peer_id = config.bro_peer_id
 
-###################### ************************
+# access_token='84bf24ce01548f2a85bcd4d2577d5b5cc6007b894b79d4f471f4f57346bd52aa08e0733ce81d69e2eafe2'
 
-def messagesGetDialogs():
-
-    resp = requests.get(vk_url+'messages.getDialogs',
-                    '&access_token={}&v={}'.format(access_token,vk_ver))
-
-    result = resp.json()
-    # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
-    if 'response' in result:
-        return result['response']['items']
-
-
-def messagesGet(count=30):
-    resp = requests.get(vk_url+'messages.get',
-                    '&count={}&access_token={}&v={}'.format(count,access_token,vk_ver))
-
-    result = resp.json()
-    # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
-
-    return result['response']['items']
-
-
-
-def messagesGetHistory(user_id,start_message_id='',count=30):
-    resp = requests.get(vk_url+'messages.getHistory',
-                    '&user_id={}&start_message_id={}&peer_id={}&count={}&access_token={}&v={}'
-                    .format(user_id, start_message_id, peer_id, count,access_token,vk_ver))
-
-    result = resp.json()
-    print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
-
-    return result['response']
-
-
-def messagesSend(user_id,chat_id=1,message='',attachment='',stiker='20'):
-    resp = requests.get(vk_url+'messages.send',
-            '&user_id={}&peer_id={}&chat_id={}&message={}&attachment={}&access_token={}&v={}'
-            .format(user_id,peer_id, chat_id,message,attachment,access_token,vk_ver))
-
-    # result = resp.json()
-    # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
-
-    return resp
+#######################################################
 
 def loadAnekdot(count=100):
 
@@ -79,12 +39,11 @@ def loadAnekdot(count=100):
     # print (json.dumps(result, indent=4, sort_keys=True, ensure_ascii=False))
     return anekdot
 
-###################### ************************
+#######################################################
 
 anekdot=loadAnekdot()
 
 print 'Started...'
-
 
 # Словарь для команд
 
