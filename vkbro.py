@@ -50,7 +50,7 @@ command = {
     'bro':{
         'txt':['бро','bro', 'привет','как дела']
         ,'answer':'bro!'
-        ,'image':'photo,photo-128566598_432688170'
+        ,'attachment':'photo,photo-128566598_432688170'
     },
     'lesson':{
         'txt':['расписание','что сегодня', 'на неделю', 'lesson']

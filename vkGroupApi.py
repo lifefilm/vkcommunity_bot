@@ -6,6 +6,9 @@ import json
 import time
 import random
 
+from colorama import *
+init(autoreset=True)
+
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -43,7 +46,7 @@ def requestVk(metod,param='',appName=appName):
                 return result['response']
 
         elif 'error' in result:
-            print 'error_msg: '+result['error']['error_msg']
+            print (Fore.RED + 'error_msg: '+result['error']['error_msg'])
             return False
 
     except Exception as e:
